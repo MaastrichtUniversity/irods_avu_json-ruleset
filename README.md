@@ -7,6 +7,13 @@ module. Please read the README of that repository for an introductionn.
 
 This repository contains the iRODS rules, policies and microservices to make the conversion code operational in iRODS.
 
+### Policies
+
+The policies implement:
+
+*
+*
+
 ## Requirements
 The following things are required to run.
 
@@ -15,8 +22,16 @@ The following things are required to run.
 
 ## Installation
 
+### Microservices
+
  iRODS 4.2.x is missing the microservices to modify the unit field of an AVU triple. Please vote for 
  [this iRODS issue](https://github.com/irods/irods/issues/4185) to
  get this fixed. So a set of custom iRODS microservices need to be installed. 
  
- 
+### Rules
+
+### Policies 
+
+## Tests
+
+Each microservice comes with a little test rule.
