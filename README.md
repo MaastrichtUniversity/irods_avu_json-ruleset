@@ -3,35 +3,68 @@
 ## Introduction
 
 This is a companion repository to the [irods_avu_json](https://github.com/MaastrichtUniversity/irods_avu_json) Python 
-module. Please read the README of that repository for an introductionn.
+module. Please read the README of that repository for an introduction on the goal of these repositories.
 
 This repository contains the iRODS rules, policies and microservices to make the conversion code operational in iRODS.
 
 ### Policies
 
-The policies implement:
+Whenever an iRODS object (file, collection, resource, user) has an AVU called `$id` set, the value of the AVU determines
+the JSON-schema controlling the object and the unit field determines the JSON-root used by the JSON-AVU conversion.  
 
-*
-*
+The policies then implements:
+
+* Direct modification of AVU under control of the JSON-schema set by `$id` AVU is not allowed. 
+* Modification of those AVUs is only allowed using setJsonToObj()
+
+Modifications of other AVUs on an iRODS object are not affected by the policies.
 
 ## Requirements
 The following things are required to run.
 
 * iRODS > 4.2.x (For Python rule engine)
-* Python rule engine
+* The iRODS Python rule engine
 
 ## Installation
 
 ### Microservices
 
- iRODS 4.2.x is missing the microservices to modify the unit field of an AVU triple. Please vote for 
- [this iRODS issue](https://github.com/irods/irods/issues/4185) to
- get this fixed. So a set of custom iRODS microservices need to be installed. 
+iRODS 4.2.x is missing the microservices to modify the unit field of an AVU triple. Please vote for 
+[this iRODS issue](https://github.com/irods/irods/issues/4185) to  get this fixed. 
  
-### Rules
+To get around this, a set of custom iRODS microservices have to be installed. These have been included in this repository.
 
-### Policies 
+Build requirements:
+* irods-dev
+* irods-externals-clang-runtime3.8-0
+* irods-externals-clang3.8-0
+* cmake
+
+Build instructions:
+```bash
+mkdir build 
+cd build
+cmake ../
+make
+```
+ 
+### Rules and Policies
+
+First make sure that the Python package [irods_avu_json](https://github.com/MaastrichtUniversity/irods_avu_json) has been
+installed globally in order for the iRODS Python rule engine to pick it up. 
+
+```bash
+sudo pip install https://github.com/MaastrichtUniversity/irods_avu_json/archive/master.zip
+```
+
+Then copy the file `rules/core.py` to `/etc/irods/core.py`.
+
+## Usage
+
+
 
 ## Tests
 
-Each microservice comes with a little test rule.
+Each microservice and rule function comes with a little test rule file that can be executed with `irule`.
+
+A more complete test script of the policies is available in `tests/pep_tests.sh`.
