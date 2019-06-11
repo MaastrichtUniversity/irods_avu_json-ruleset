@@ -13,7 +13,7 @@
 cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 
 # Set global CMAKE variables
-set(MSI_RELEASE_VERSION "2.0.0")
+set(MSI_RELEASE_VERSION "1.0.0")
 
  # Specify iRODS version manually
 set(IRODS_VERSION "4.2.6")
@@ -115,7 +115,7 @@ set(CPACK_PACKAGE_CONTACT "DataHub Maastricht University <datahub@maastrichtuniv
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "iRODS microservices for the irods_avu_json project")
 
-set(CPACK_RESOURCE_FILE_README  "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+set(CPACK_RESOURCE_FILE_README  "${CMAKE_CURRENT_SOURCE_DIR}/../README.md")
 
 set(CPACK_RPM_PACKAGE_RELEASE "1")
 set(CPACK_RPM_PACKAGE_LICENSE "LGPLv3")
