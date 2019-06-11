@@ -1,2 +1,3 @@
 requests
 jsonschema
+https://github.com/MaastrichtUniversity/irods_avu_json/archive/master.zip
