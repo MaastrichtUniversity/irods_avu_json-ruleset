@@ -37,8 +37,8 @@ def setJsonToObj(rule_args, callback, rei):
     try:
         data = json.loads(json_string)
     except ValueError:
-        callback.writeLine("serverLog", "Invalid json provided")
-        callback.msiExit("-1101000", "Invalid json provided")
+        callback.writeLine("serverLog", "Invalid JSON provided")
+        callback.msiExit("-1101000", "Invalid JSON provided")
         return
 
     # check if validation is required
@@ -61,8 +61,8 @@ def setJsonToObj(rule_args, callback, rei):
             r = requests.get(json_schema_url)
         except requests.exceptions.RequestException as e:  # This is the correct syntax
             callback.writeLine("serverLog",
-                               "JSON schema could not be downloaded :" + str(e.message))
-            callback.msiExit("-1101000", "JSON schema could not be downloaded : " + str(e.message))
+                               "JSON schema could not be downloaded: " + str(e.message))
+            callback.msiExit("-1101000", "JSON schema could not be downloaded: " + str(e.message))
             return
 
         schema = r.json()
@@ -70,8 +70,8 @@ def setJsonToObj(rule_args, callback, rei):
             jsonschema.validate(instance=data, schema=schema)
         except jsonschema.exceptions.ValidationError, e:
             callback.writeLine("serverLog",
-                               "JSON Instance could not be validated against JSON-schema " + str(e.message))
-            callback.msiExit("-1101000", "JSON Instance could not be validated against JSON-schema : " + str(e.message))
+                               "JSON instance could not be validated against JSON-schema: " + str(e.message))
+            callback.msiExit("-1101000", "JSON instance could not be validated against JSON-schema: " + str(e.message))
             return
 
     # Load global variable activelyUpdatingAVUs and set this to true. At this point we are actively updating
