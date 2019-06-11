@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.3.0 FATAL_ERROR)
 set(MSI_RELEASE_VERSION "2.0.0")
 
  # Specify iRODS version manually
-set(IRODS_VERSION "4.2.5")
+set(IRODS_VERSION "4.2.6")
 
 # Set additional modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/CMakeModules")
