@@ -173,18 +173,28 @@ if ! irule -F $RULES/setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*o
 fi
 
 if irule -F $RULES/setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":21'"; then
-    echo ERROR irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":21'" should work
+    echo ERROR irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":21'" should not work
     exit 1
 fi
 
-
 if irule -F $RULES/setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":\"21\"}'"; then
-    echo ERROR irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":\"21\"}'" should work
+    echo ERROR irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='root'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":\"21\"}'" should not work
+    exit 1
+fi
+
+# setJsonToObj with iRODS object as schema
+
+iput weight.json weight.json
+irule -F $RULES/setJsonSchemaToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonSchema='i:/nlmumc/home/rods/weight.json'" "*jsonRoot='weight'"
+
+if ! irule -F $RULES/setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='weight'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"weight\":21}'"; then
+    echo ERROR irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test1.file'" "*objectType='-d'" "*jsonRoot='weight'" "*jsonString='{\"firstName\":\"John\",\"lastName\":\"Doe\",\"weight\":21}'" should work
     exit 1
 fi
 
 # Cleanup
 irm test1.file
+irm weight.json
 iput pep_tests.sh test1.file
 
 # getJsonFromObj
