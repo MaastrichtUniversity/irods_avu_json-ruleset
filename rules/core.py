@@ -1,10 +1,10 @@
 import json
-import sys
 import jsonavu
-import session_vars
 import genquery
 import jsonschema
 import requests
+import requests_cache
+import irods_types
 import re
 
 # Global vars
@@ -37,40 +37,22 @@ def setJsonToObj(rule_args, callback, rei):
     try:
         data = json.loads(json_string)
     except ValueError:
-        callback.writeLine("serverLog", "Invalid JSON provided")
         callback.msiExit("-1101000", "Invalid JSON provided")
         return
 
-    # check if validation is required
-    validation_required = False
-    json_schema_url = ""
+    ret_val = callback.getJsonSchemaFromObject(object_name, object_type, json_root, "")
+    schema = ret_val['arguments'][3]
 
-    # Find AVUs with a = '$id', and u = json_root. Their value is the JSON-schema URL
-    fields = getFieldsForType(callback, object_type, object_name)
-    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id' AND %s = '%s'" % (fields['a'], fields['u'], json_root)
-    rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
-
-    # We're only expecting one row to be returned if any
-    for row in rows:
-        validation_required = True
-        json_schema_url = row[fields['v']]
-
-    if validation_required:
-        # TODO: This needs to accept more types of URLs
+    if schema is not "":
         try:
-            r = requests.get(json_schema_url)
-        except requests.exceptions.RequestException as e:  # This is the correct syntax
-            callback.writeLine("serverLog",
-                               "JSON schema could not be downloaded: " + str(e.message))
-            callback.msiExit("-1101000", "JSON schema could not be downloaded: " + str(e.message))
+            schema = json.loads(schema)
+        except ValueError:
+            callback.msiExit("-1101000", "Invalid JSON-schema provided")
             return
 
-        schema = r.json()
         try:
             jsonschema.validate(instance=data, schema=schema)
         except jsonschema.exceptions.ValidationError, e:
-            callback.writeLine("serverLog",
-                               "JSON instance could not be validated against JSON-schema: " + str(e.message))
             callback.msiExit("-1101000", "JSON instance could not be validated against JSON-schema: " + str(e.message))
             return
 
@@ -81,7 +63,6 @@ def setJsonToObj(rule_args, callback, rei):
 
     ret_val = callback.msi_rmw_avu(object_type, object_name, "%", "%", json_root + "_%")
     if ret_val['status'] is False and ret_val['code'] != -819000:
-        callback.writeLine("serverLog", "msi_rmw_avu failed with: " + ret_val['code'])
         return
 
     avu = jsonavu.json2avu(data, json_root)
@@ -182,7 +163,6 @@ def getFieldsForType(callback, object_type, object_name):
 
         fields['WHERE'] = "USER_NAME = '" + object_name + "'"
     else:
-        callback.writeLine("serverLog", "Object type should be -d, -C, -R or -u")
         callback.msiExit("-1101000", "Object type should be -d, -C, -R or -u")
 
     return fields
@@ -223,7 +203,6 @@ def setJsonSchemaToObj(rule_args, callback, rei):
 
         # If unit is matching
         if pattern.match(unit) and unit.startswith(json_root + "_"):
-            callback.writeLine("serverLog", "JSON root " + json_root + " is already in use")
             callback.msiExit("-1101000", "JSON root " + json_root + " is already in use")
 
     # Delete existing $id AVU for this JSON root
@@ -244,30 +223,86 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
                         -R for resource
                         -C for collection
                         -u for user
+        Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
     :param callback:
     :param rei:
-    :return: json formatted Schema AVUs
+    :return: json formatted Schema
     """
-
     object_name = rule_args[0]
     object_type = rule_args[1]
+    json_root = rule_args[2]
 
-    # Get all AVUs with attribute $id
+    # Find AVU with a = '$id', and u = json_root. Their value is the JSON-schema URL
     fields = getFieldsForType(callback, object_type, object_name)
-    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id'" % (fields['a'])
+    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id' AND %s = '%s'" % (fields['a'], fields['u'], json_root)
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
-    avus = []
+    # We're only expecting one row to be returned if any
+    json_schema_url = ""
     for row in rows:
-        avus.append({
-            "a": row[fields['a']],
-            "v": row[fields['v']],
-            "u": row[fields['u']]
-        })
+        json_schema_url = row[fields['v']]
 
-    result = json.dumps(avus)
+    # Fetch the schema from
+    schema = ""
+    if json_schema_url.startswith("i:"):
+        # Schema is stored as an iRODS file
+        json_schema_url_irods = json_schema_url[2:]
+        schema = getJsonSchemaFromiRODSFile(json_schema_url_irods, callback)
 
-    rule_args[2] = result
+    elif json_schema_url.startswith("http://") or json_schema_url.startswith("https://"):
+        # Schema is stored as an web object
+
+        # Use requests-cache to prevent fetching the JSON-schema too often
+        requests_cache.install_cache('/tmp/irods_avu_json-ruleset-cache', backend='sqlite', expire_after=60*60*24)
+
+        try:
+            r = requests.get(json_schema_url)
+        except requests.exceptions.RequestException as e:  # This is the correct syntax
+            callback.msiExit("-1101000", "JSON schema could not be downloaded : " + str(e.message))
+            return
+
+        schema = json.dumps(r.json())
+    else:
+        # Schema is stored as an unknown object
+        callback.msiExit("-1101000", "Unknown protocol or method for retrieving the JSON-schema")
+
+    rule_args[3] = schema
+
+    return schema
+
+
+def getJsonSchemaFromiRODSFile(path, callback):
+    """
+        This rule gets a JSON schema stored as an iRODS object
+
+        :param path: Full path of the json file (/nlmumc/home/rods/weight.json)
+        :param callback:
+        :return: json formatted Schema
+        """
+
+    ret_val = callback.msiGetObjType(path, "")
+    type_file = ret_val['arguments'][1]
+
+    if type_file != '-d':
+        callback.msiExit("-1101000", "Only files in iRODS can be used for JSON storage")
+        return
+
+    # Open iRODS file
+    ret_val = callback.msiDataObjOpen("objPath=" + path, 0)
+    file_desc = ret_val['arguments'][1]
+
+    # Read iRODS file
+    ret_val = callback.msiDataObjRead(file_desc, 2^32-1, irods_types.BytesBuf())
+    read_buf = ret_val['arguments'][2]
+
+    # Convert BytesBuffer to string
+    ret_val = callback.msiBytesBufToStr(read_buf, "")
+    output_json = ret_val['arguments'][1]
+
+    # Close iRODS file
+    callback.msiDataObjClose(file_desc, 0)
+
+    return output_json
 
 
 def allowAvuChange(object_name, object_type, unit, callback):
