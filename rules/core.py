@@ -255,7 +255,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     if json_schema_url.startswith("i:"):
         # Schema is stored as an iRODS file
         json_schema_url_irods = json_schema_url[2:]
-        schema = getJsonSchemaFromiRODSFile(json_schema_url_irods, callback)
+        schema = getJsonSchemaFromiRODSObject(json_schema_url_irods, callback)
 
     elif json_schema_url.startswith("http://") or json_schema_url.startswith("https://"):
         # Schema is stored as an web object
@@ -278,7 +278,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     return schema
 
 
-def getJsonSchemaFromiRODSFile(path, callback):
+def getJsonSchemaFromiRODSObject(path, callback):
     """
         This rule gets a JSON schema stored as an iRODS object
 

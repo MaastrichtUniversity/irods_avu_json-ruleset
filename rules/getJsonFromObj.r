@@ -5,7 +5,6 @@
 #                             -C for collection
 #                             -u for user
 # Argument 3:  the JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
-#              if empty string is supplied the irods_avu_json parsing is skipped and a json representing a array of avu's is returned
 
 # Example : irule -F getJsonFromObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonRoot='root'"
 
