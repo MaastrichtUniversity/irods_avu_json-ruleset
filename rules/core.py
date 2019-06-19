@@ -70,7 +70,7 @@ def setJsonToObj(rule_args, callback, rei):
     for i in avu:
         callback.msi_add_avu(object_type, object_name, i["a"], i["v"], i["u"])
 
-    # Set global variable activelyUpdatingAVUsthis to false. At this point we are done updating AVU and want
+    # Set global variable activelyUpdatingAVUs to false. At this point we are done updating AVU and want
     # to enable some of the checks.
     activelyUpdatingAVUs = False
 
@@ -87,7 +87,7 @@ def getJsonFromObj(rule_args, callback, rei):
                         -C for collection
                         -u for user
         Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
-        Argument 3: The
+        Argument 3: The JSON string
     :param callback:
     :param rei:
     :return: JSON string is returned in rule_args[3]
@@ -224,9 +224,10 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
                         -C for collection
                         -u for user
         Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+        Argument 3: The JSON-schema
     :param callback:
     :param rei:
-    :return: json formatted Schema
+    :return: JSON-schema. Also set in rule_args[3]
     """
     object_name = rule_args[0]
     object_type = rule_args[1]
@@ -253,7 +254,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
         # Schema is stored as an web object
 
         # Use requests-cache to prevent fetching the JSON-schema too often
-        requests_cache.install_cache('/tmp/irods_avu_json-ruleset-cache', backend='sqlite', expire_after=60*60*24)
+        requests_cache.install_cache('/tmp/irods_avu_json-ruleset-cache', backend='sqlite', expire_after=60 * 60 * 24)
 
         try:
             r = requests.get(json_schema_url)
@@ -277,7 +278,7 @@ def getJsonSchemaFromiRODSFile(path, callback):
 
         :param path: Full path of the json file (/nlmumc/home/rods/weight.json)
         :param callback:
-        :return: json formatted Schema
+        :return: JSON formatted schema
         """
 
     ret_val = callback.msiGetObjType(path, "")
@@ -292,7 +293,7 @@ def getJsonSchemaFromiRODSFile(path, callback):
     file_desc = ret_val['arguments'][1]
 
     # Read iRODS file
-    ret_val = callback.msiDataObjRead(file_desc, 2^32-1, irods_types.BytesBuf())
+    ret_val = callback.msiDataObjRead(file_desc, 2 ** 32 - 1, irods_types.BytesBuf())
     read_buf = ret_val['arguments'][2]
 
     # Convert BytesBuffer to string
