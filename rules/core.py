@@ -293,7 +293,7 @@ def getJsonSchemaFromiRODSFile(path, callback):
     file_desc = ret_val['arguments'][1]
 
     # Read iRODS file
-    ret_val = callback.msiDataObjRead(file_desc, 2 ** 32 - 1, irods_types.BytesBuf())
+    ret_val = callback.msiDataObjRead(file_desc, 2 ** 31 - 1, irods_types.BytesBuf())
     read_buf = ret_val['arguments'][2]
 
     # Convert BytesBuffer to string
