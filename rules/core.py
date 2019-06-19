@@ -40,10 +40,12 @@ def setJsonToObj(rule_args, callback, rei):
         callback.msiExit("-1101000", "Invalid JSON provided")
         return
 
+    # Retrieve a JSON-schema if any is set
     ret_val = callback.getJsonSchemaFromObject(object_name, object_type, json_root, "")
     schema = ret_val['arguments'][3]
 
-    if schema is not "":
+    # Perform validation if required
+    if schema is not "false":
         try:
             schema = json.loads(schema)
         except ValueError:
@@ -224,10 +226,10 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
                         -C for collection
                         -u for user
         Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
-        Argument 3: The JSON-schema
+        Argument 3: The JSON-schema or "false" when no schema is set
     :param callback:
     :param rei:
-    :return: JSON-schema. Also set in rule_args[3]
+    :return: JSON-schema or "false". Also set in rule_args[3]
     """
     object_name = rule_args[0]
     object_type = rule_args[1]
@@ -239,9 +241,14 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
     # We're only expecting one row to be returned if any
-    json_schema_url = ""
+    json_schema_url = None
     for row in rows:
         json_schema_url = row[fields['v']]
+
+    # If no JSON-schema is known, the object is not under validation for this JSON-root
+    if json_schema_url is None:
+        rule_args[3] = "false"
+        return "false"
 
     # Fetch the schema from
     schema = ""
