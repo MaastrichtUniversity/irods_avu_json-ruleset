@@ -45,7 +45,7 @@ def setJsonToObj(rule_args, callback, rei):
     schema = ret_val['arguments'][3]
 
     # Perform validation if required
-    if schema is not "false":
+    if schema != "false":
         try:
             schema = json.loads(schema)
         except ValueError:
