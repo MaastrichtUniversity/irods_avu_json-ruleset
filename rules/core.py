@@ -268,8 +268,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
         except requests.exceptions.RequestException as e:  # This is the correct syntax
             callback.msiExit("-1101000", "JSON schema could not be downloaded : " + str(e.message))
             return
-
-        schema = json.dumps(r.json())
+        schema = r.text
     else:
         # Schema is stored as an unknown object
         callback.msiExit("-1101000", "Unknown protocol or method for retrieving the JSON-schema")
