@@ -7,23 +7,12 @@ module. Please read the README of that repository for an introduction on the goa
 
 This repository contains the iRODS rules, policies and microservices to make the conversion code operational in iRODS.
 
-### Policies
-
-Whenever an iRODS object (file, collection, resource, user) has an AVU called `$id` set, the value of the AVU determines
-the JSON-schema controlling the object and the unit field determines the JSON-root used by the JSON-AVU conversion.  
-
-The policies then implements:
-
-* Direct modification of AVU under control of the JSON-schema set by `$id` AVU is not allowed. 
-* Modification of those AVUs is only allowed using setJsonToObj()
-
-Modifications of other AVUs on an iRODS object are not affected by the policies.
-
 ## Requirements
-The following things are required to run.
+The following are required to run.
 
 * iRODS > 4.2.x (For Python rule engine)
 * The iRODS Python rule engine
+* Python dependencies (see requirements.txt)
 
 ## Installation
 
@@ -47,21 +36,46 @@ cd build
 cmake ../
 make
 ```
+
+Install instructions
+```bash
+make install
+```
  
 ### Rules and Policies
 
-First make sure that the Python package [irods_avu_json](https://github.com/MaastrichtUniversity/irods_avu_json) has been
-installed globally in order for the iRODS Python rule engine to pick it up. 
+First make sure that the Python package [irods_avu_json](https://github.com/MaastrichtUniversity/irods_avu_json) and 
+other requirements have been installed globally in order for the iRODS Python rule engine to pick it up. 
 
 ```bash
-sudo pip install https://github.com/MaastrichtUniversity/irods_avu_json/archive/master.zip
+sudo pip install -r requirements.txt
 ```
 
-Then copy the file `rules/core.py` to `/etc/irods/core.py`.
+Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
 ## Usage
 
+### Rules
 
+#### setJsonToObj(*object, *objectType, *jsonRoot, *json)
+
+#### getJsonFromObj(*object, *objectType, *jsonRoot)
+
+#### setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonRoot)
+
+#### getJsonSchemaFromObj(*object, *objectType, *jsonRoot)
+
+### Policies
+
+Whenever an iRODS object (file, collection, resource, user) has an AVU called `$id` set, the value of the AVU determines
+the JSON-schema controlling the object and the unit field determines the JSON-root used by the JSON-AVU conversion.  
+
+The policies then implements:
+
+* Direct modification of AVU under control of the JSON-schema set by `$id` AVU is not allowed. 
+* Modification of those AVUs is only allowed using setJsonToObj()
+
+Modifications of other AVUs on an iRODS object are not affected by the policies.
 
 ## Tests
 
