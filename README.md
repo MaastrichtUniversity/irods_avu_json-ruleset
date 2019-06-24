@@ -53,6 +53,11 @@ sudo pip install -r requirements.txt
 
 Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
+## Docker
+A description of a docker contain running this ruleset, its microservices and python dependencies exists in the
+[irods_avu_json-docker](https://github.com/MaastrichtUniversity/irods_avu_json-docker) repository. You can use this
+to quickly try out this ruleset.
+
 ## Usage
 
 ### Rules
