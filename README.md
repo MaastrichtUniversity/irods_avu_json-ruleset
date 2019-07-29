@@ -7,6 +7,11 @@ module. Please read the README of that repository for an introduction on the goa
 
 This repository contains the iRODS rules, policies and microservices to make the conversion code operational in iRODS.
 
+### Docker
+A description of a docker contain running this ruleset, its microservices and python dependencies exists in the
+[irods_avu_json-docker](https://github.com/MaastrichtUniversity/irods_avu_json-docker) repository. You can use this
+to quickly try out this ruleset. 
+
 ## Requirements
 The following are required to run.
 
@@ -53,11 +58,6 @@ sudo pip install -r requirements.txt
 
 Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
-## Docker
-A description of a docker contain running this ruleset, its microservices and python dependencies exists in the
-[irods_avu_json-docker](https://github.com/MaastrichtUniversity/irods_avu_json-docker) repository. You can use this
-to quickly try out this ruleset.
-
 ## Usage
 
 ### Rules
@@ -87,3 +87,13 @@ Modifications of other AVUs on an iRODS object are not affected by the policies.
 Each microservice and rule function comes with a little test rule file that can be executed with `irule`.
 
 A more complete test script of the policies is available in `tests/pep_tests.sh`.
+
+## Authors
+Paul van Schayck (p.vanschayck@maastrichtuniversity.nl), Ton Smeele, Daniel Theunissen and Lazlo Westerhof 
+
+## Copyright and license
+
+(c) Maastricht University
+
+Apache License 2.0
+ 
