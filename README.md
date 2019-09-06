@@ -62,18 +62,18 @@ Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
 ### Rules
 
-#### setJsonToObj(*object, *objectType, *jsonRoot, *json)
+#### setJsonToObj(*object, *objectType, *jsonNamespace, *json)
 
-#### getJsonFromObj(*object, *objectType, *jsonRoot)
+#### getJsonFromObj(*object, *objectType, *jsonNamespace)
 
-#### setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonRoot)
+#### setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNamespace)
 
-#### getJsonSchemaFromObj(*object, *objectType, *jsonRoot)
+#### getJsonSchemaFromObj(*object, *objectType, *jsonNamespace)
 
 ### Policies
 
 Whenever an iRODS object (file, collection, resource, user) has an AVU called `$id` set, the value of the AVU determines
-the JSON-schema controlling the object and the unit field determines the JSON-root used by the JSON-AVU conversion.  
+the JSON-schema controlling the object and the unit field determines the JSON-namespace used by the JSON-AVU conversion.  
 
 The policies then implements:
 

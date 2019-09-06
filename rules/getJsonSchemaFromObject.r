@@ -4,7 +4,7 @@
 #                             -R for resource
 #                             -C for collection
 #                             -u for user
-# Argument 3:  the JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+# Argument 3:  the JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
 
 # Example : irule -F getJsonSchemaFromObject.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'"
 

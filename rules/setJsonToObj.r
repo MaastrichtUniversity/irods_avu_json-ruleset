@@ -4,17 +4,17 @@
 #                             -R for resource
 #                             -C for collection
 #                             -u for user
-# Argument 3:  the JSON root (see documentation).
+# Argument 3:  the JSON namespace (see documentation).
 # Argument 4:  the JSON string {"firstName":"John","lastName":"Doe","age":21}
 #
 
-# Example : irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonRoot='root'" '*jsonString='\''{"firstName":"John","lastName":"Doe","age":21}'\'''
+# Example : irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonNamespace='root'" '*jsonString='\''{"firstName":"John","lastName":"Doe","age":21}'\'''
 
 
 main() {
     # Make call to function in core.py
-    setJsonToObj(*object, *objectType, *jsonRoot, *jsonString)
+    setJsonToObj(*object, *objectType, *jsonNamespace, *jsonString)
 }
 
-INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonRoot=$'root', *jsonString=$'{"firstName":"John","lastName":"Doe","age":21}'
+INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonNamespace=$'root', *jsonString=$'{"firstName":"John","lastName":"Doe","age":21}'
 OUTPUT ruleExecOut

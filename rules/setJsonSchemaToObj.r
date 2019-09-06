@@ -5,16 +5,16 @@
 #                             -C for collection
 #                             -u for user
 # Argument 3:  URL to the JSON-Schema
-# Argument 4:  the JSON root (see documentation)
+# Argument 4:  the JSON namespace (see documentation)
 #
 
-# Example : irule -F setJsonSchemaToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonSchema='https://api.myjson.com/bins/17vejk'" "*jsonRoot='root'"
+# Example : irule -F setJsonSchemaToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonSchema='https://api.myjson.com/bins/17vejk'" "*jsonNamespace='root'"
 
 
 main() {
     # Make call to function in core.py
-    setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonRoot)
+    setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNamespace)
 }
 
-INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonSchema=$'https://api.myjson.com/bins/17vejk', *jsonRoot=$'root'
+INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonSchema=$'https://api.myjson.com/bins/17vejk', *jsonNamespace=$'root'
 OUTPUT ruleExecOut

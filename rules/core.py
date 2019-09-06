@@ -22,7 +22,7 @@ def setJsonToObj(rule_args, callback, rei):
                         -R for resource
                         -C for collection
                         -u for user
-        Argument 2:  The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+        Argument 2:  The JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
         Argument 3:  the JSON string {"k1":"v1","k2":{"k3":"v2","k4":"v3"},"k5":["v4","v5"],"k6":[{"k7":"v6","k8":"v7"}]}
     :param callback:
     :param rei:
@@ -31,7 +31,7 @@ def setJsonToObj(rule_args, callback, rei):
 
     object_name = rule_args[0]
     object_type = rule_args[1]
-    json_root = rule_args[2]
+    json_namespace = rule_args[2]
     json_string = rule_args[3]
 
     try:
@@ -41,7 +41,7 @@ def setJsonToObj(rule_args, callback, rei):
         return
 
     # Retrieve a JSON-schema if any is set
-    ret_val = callback.getJsonSchemaFromObject(object_name, object_type, json_root, "")
+    ret_val = callback.getJsonSchemaFromObject(object_name, object_type, json_namespace, "")
     schema = ret_val['arguments'][3]
 
     # Perform validation if required
@@ -63,11 +63,11 @@ def setJsonToObj(rule_args, callback, rei):
     global activelyUpdatingAVUs
     activelyUpdatingAVUs = True
 
-    ret_val = callback.msi_rmw_avu(object_type, object_name, "%", "%", json_root + "_%")
+    ret_val = callback.msi_rmw_avu(object_type, object_name, "%", "%", json_namespace + "_%")
     if ret_val['status'] is False and ret_val['code'] != -819000:
         return
 
-    avu = jsonavu.json2avu(data, json_root)
+    avu = jsonavu.json2avu(data, json_namespace)
 
     for i in avu:
         callback.msi_add_avu(object_type, object_name, i["a"], i["v"], i["u"])
@@ -88,7 +88,7 @@ def getJsonFromObj(rule_args, callback, rei):
                         -R for resource
                         -C for collection
                         -u for user
-        Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+        Argument 2: The JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
         Argument 3: The JSON string
     :param callback:
     :param rei:
@@ -96,7 +96,7 @@ def getJsonFromObj(rule_args, callback, rei):
     """
     object_name = rule_args[0]
     object_type = rule_args[1]
-    json_root = rule_args[2]
+    json_namespace = rule_args[2]
 
     # Get all AVUs
     fields = getFieldsForType(callback, object_type, object_name)
@@ -111,7 +111,7 @@ def getJsonFromObj(rule_args, callback, rei):
         })
 
     # Convert AVUs to JSON
-    parsed_data = jsonavu.avu2json(avus, json_root)
+    parsed_data = jsonavu.avu2json(avus, json_namespace)
     result = json.dumps(parsed_data)
 
     rule_args[3] = result
@@ -182,7 +182,7 @@ def setJsonSchemaToObj(rule_args, callback, rei):
                         -C for collection
                         -u for user
         Argument 2: URL to the JSON-Schema example https://api.myjson.com/bins/17vejk
-        Argument 3: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+        Argument 3: The JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
     :param callback:
     :param rei:
     :return:
@@ -190,9 +190,9 @@ def setJsonSchemaToObj(rule_args, callback, rei):
     object_name = rule_args[0]
     object_type = rule_args[1]
     json_schema_url = rule_args[2]
-    json_root = rule_args[3]
+    json_namespace = rule_args[3]
 
-    # Check if this root has been used before
+    # Check if this namespace has been used before
     fields = getFieldsForType(callback, object_type, object_name)
     avus = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
@@ -204,14 +204,14 @@ def setJsonSchemaToObj(rule_args, callback, rei):
         unit = str(avu[fields['u']])
 
         # If unit is matching
-        if pattern.match(unit) and unit.startswith(json_root + "_"):
-            callback.msiExit("-1101000", "JSON root " + json_root + " is already in use")
+        if pattern.match(unit) and unit.startswith(json_namespace + "_"):
+            callback.msiExit("-1101000", "JSON namespace " + json_namespace + " is already in use")
 
-    # Delete existing $id AVU for this JSON root
-    callback.msi_rmw_avu(object_type, object_name, '$id', "%", json_root)
+    # Delete existing $id AVU for this JSON namespace
+    callback.msi_rmw_avu(object_type, object_name, '$id', "%", json_namespace)
 
     # Set new $id AVU
-    callback.msi_add_avu(object_type, object_name, '$id', json_schema_url, json_root)
+    callback.msi_add_avu(object_type, object_name, '$id', json_schema_url, json_namespace)
 
 
 def getJsonSchemaFromObject(rule_args, callback, rei):
@@ -225,7 +225,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
                         -R for resource
                         -C for collection
                         -u for user
-        Argument 2: The JSON root according to https://github.com/MaastrichtUniversity/irods_avu_json.
+        Argument 2: The JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
         Argument 3: The JSON-schema or "false" when no schema is set
     :param callback:
     :param rei:
@@ -233,11 +233,11 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     """
     object_name = rule_args[0]
     object_type = rule_args[1]
-    json_root = rule_args[2]
+    json_namespace = rule_args[2]
 
-    # Find AVU with a = '$id', and u = json_root. Their value is the JSON-schema URL
+    # Find AVU with a = '$id', and u = json_namespace. Their value is the JSON-schema URL
     fields = getFieldsForType(callback, object_type, object_name)
-    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id' AND %s = '%s'" % (fields['a'], fields['u'], json_root)
+    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id' AND %s = '%s'" % (fields['a'], fields['u'], json_namespace)
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
     # We're only expecting one row to be returned if any
@@ -245,7 +245,7 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     for row in rows:
         json_schema_url = row[fields['v']]
 
-    # If no JSON-schema is known, the object is not under validation for this JSON-root
+    # If no JSON-schema is known, the object is not under validation for this JSON-namespace
     if json_schema_url is None:
         rule_args[3] = "false"
         return "false"
@@ -338,15 +338,15 @@ def allowAvuChange(object_name, object_type, unit, callback):
     fields['WHERE'] = fields['WHERE'] + " AND %s = '$id'" % (fields['a'])
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
-    # From these AVUs extract the unit (root)
-    root_list = []
+    # From these AVUs extract the unit (namespace)
+    namespace_list = []
     for row in rows:
-        root_list.append(row[fields['u']])
+        namespace_list.append(row[fields['u']])
 
     # Get the unit from the avu that is currently added.
-    for root in root_list:
-        # If the unit start with one of the roots, disallow the operation
-        if str(unit).startswith(root + "_"):
+    for namespace in namespace_list:
+        # If the unit start with one of the namespaces, disallow the operation
+        if str(unit).startswith(namespace + "_"):
             return False
 
     return True
@@ -367,15 +367,15 @@ def pep_database_set_avu_metadata_pre(rule_args, callback, rei):
     fields_id = fields['WHERE'] + " AND %s = '$id'" % (fields['a'])
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields_id, genquery.AS_DICT, callback)
 
-    # From these AVUs extract the unit (root)
-    root_list = []
+    # From these AVUs extract the unit (namespace)
+    namespace_list = []
     for row in rows:
-        root_list.append(row[fields['u']])
+        namespace_list.append(row[fields['u']])
 
     # Get the unit from the avu that is currently added.
-    for root in root_list:
-        # If the unit start with one of the roots, disallow the operation
-        if str(object_unit).startswith(root + "_"):
+    for namespace in namespace_list:
+        # If the unit start with one of the namespacess, disallow the operation
+        if str(object_unit).startswith(namespace + "_"):
             callback.msiOprDisallowed()
 
     # A set operation can also change the unit of existing attributes
@@ -383,9 +383,9 @@ def pep_database_set_avu_metadata_pre(rule_args, callback, rei):
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields_a, genquery.AS_DICT, callback)
 
     for row in rows:
-        for root in root_list:
-            # If the unit start with one of the roots, disallow the operation
-            if str(row[fields['u']]).startswith(root + "_"):
+        for namespace in namespace_list:
+            # If the unit start with one of the namespaces, disallow the operation
+            if str(row[fields['u']]).startswith(namespace + "_"):
                 callback.msiOprDisallowed()
 
 
@@ -422,11 +422,11 @@ def pep_database_mod_avu_metadata_prep(rule_args, callback, rei):
     object_old_unit = rule_args[7]
     object_new_unit = rule_args[10]
 
-    # If old unit starts with one of the roots disallow
+    # If old unit starts with one of the namespaces disallow
     if not allowAvuChange(object_name, object_type, object_old_unit, callback):
         callback.msiOprDisallowed()
 
-    # If new unit starts with one of the roots disallow
+    # If new unit starts with one of the namespaces disallow
     if not allowAvuChange(object_name, object_type, object_new_unit, callback):
         callback.msiOprDisallowed()
 
@@ -481,24 +481,24 @@ def pep_database_copy_avu_metadata_pre(rule_args, callback, rei):
     rows = genquery.row_iterator([fields_to['a'], fields_to['v'], fields_to['u']], fields_id, genquery.AS_DICT,
                                  callback)
 
-    # From these AVUs extract the unit (root)
-    root_list_to = []
+    # From these AVUs extract the unit (namespace)
+    namespace_list = []
     for row in rows:
-        root_list_to.append(row[fields_to['u']])
+        namespace_list.append(row[fields_to['u']])
 
     # Regular expression pattern for unit field
     pattern = re.compile(jsonavu.RE_UNIT)
 
-    # For all AVUs on the from object check if one starts with the one of the root from the to object
+    # For all AVUs on the from object check if one starts with the one of the namespaces from the to object
     for avu in avus_from:
-        for root in root_list_to:
+        for namespace in namespace_list:
             # Match unit to extract all info
             unit = str(avu[fields_from['u']])
 
             # If unit is matching
-            if pattern.match(unit) and unit.startswith(root + "_"):
-                # callback.writeLine("serverLog", "JSON root " + root + " is already in use in the to object")
-                # callback.msiExit("-1101000", "JSON root " + root + " is already in use in the to object")
+            if pattern.match(unit) and unit.startswith(namespace + "_"):
+                # callback.writeLine("serverLog", "JSON namespace " + namespace + " is already in use in the to object")
+                # callback.msiExit("-1101000", "JSON namespace " + namespace + " is already in use in the to object")
                 callback.msiOprDisallowed()
 
     # TODO: Do more copy cases need to be covered?
