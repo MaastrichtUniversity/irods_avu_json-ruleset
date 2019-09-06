@@ -8,13 +8,13 @@
 # Argument 4:  the JSON string {"firstName":"John","lastName":"Doe","age":21}
 #
 
-# Example : irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonNamespace='root'" '*jsonString='\''{"firstName":"John","lastName":"Doe","age":21}'\'''
+# Example : irule -F setJsonToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonNs='root'" '*jsonString='\''{"firstName":"John","lastName":"Doe","age":21}'\'''
 
 
 main() {
     # Make call to function in core.py
-    setJsonToObj(*object, *objectType, *jsonNamespace, *jsonString)
+    setJsonToObj(*object, *objectType, *jsonNs, *jsonString)
 }
 
-INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonNamespace=$'root', *jsonString=$'{"firstName":"John","lastName":"Doe","age":21}'
+INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonNs=$'root', *jsonString=$'{"firstName":"John","lastName":"Doe","age":21}'
 OUTPUT ruleExecOut

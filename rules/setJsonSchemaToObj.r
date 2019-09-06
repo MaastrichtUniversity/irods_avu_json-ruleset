@@ -8,13 +8,13 @@
 # Argument 4:  the JSON namespace (see documentation)
 #
 
-# Example : irule -F setJsonSchemaToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonSchema='https://api.myjson.com/bins/17vejk'" "*jsonNamespace='root'"
+# Example : irule -F setJsonSchemaToObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonSchema='https://api.myjson.com/bins/17vejk'" "*jsonNs='root'"
 
 
 main() {
     # Make call to function in core.py
-    setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNamespace)
+    setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNs)
 }
 
-INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonSchema=$'https://api.myjson.com/bins/17vejk', *jsonNamespace=$'root'
+INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonSchema=$'https://api.myjson.com/bins/17vejk', *jsonNs=$'root'
 OUTPUT ruleExecOut

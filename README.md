@@ -62,13 +62,13 @@ Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
 ### Rules
 
-#### setJsonToObj(*object, *objectType, *jsonNamespace, *json)
+#### setJsonToObj(*object, *objectType, *jsonNs, *json)
 
-#### getJsonFromObj(*object, *objectType, *jsonNamespace)
+#### getJsonFromObj(*object, *objectType, *jsonNs)
 
-#### setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNamespace)
+#### setJsonSchemaToObj(*object, *objectType, *jsonSchema, *jsonNs)
 
-#### getJsonSchemaFromObj(*object, *objectType, *jsonNamespace)
+#### getJsonSchemaFromObj(*object, *objectType, *jsonNs)
 
 ### Policies
 

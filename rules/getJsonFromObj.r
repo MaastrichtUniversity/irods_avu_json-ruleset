@@ -6,7 +6,7 @@
 #                             -u for user
 # Argument 3:  the JSON namespace according to https://github.com/MaastrichtUniversity/irods_avu_json.
 
-# Example : irule -F getJsonFromObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonNamespace='root'"
+# Example : irule -F getJsonFromObj.r "*object='/nlmumc/home/rods/test.file'" "*objectType='-d'" "*jsonNs='root'"
 
 
 main(){
@@ -14,11 +14,11 @@ main(){
     *result = ""
 
     # Call the python function
-    getJsonFromObj(*object, *objectType, *jsonNamespace, *result)
+    getJsonFromObj(*object, *objectType, *jsonNs, *result)
 
     # Print
     writeLine("stdout", *result)
 }
 
-INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonNamespace=$'root'
+INPUT *object=$'/nlmumc/home/rods/test.file', *objectType=$'-d', *jsonNs=$'root'
 OUTPUT ruleExecOut
