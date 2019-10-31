@@ -207,11 +207,11 @@ def setJsonSchemaToObj(rule_args, callback, rei):
         if pattern.match(unit) and unit.startswith(json_namespace + "_"):
             callback.msiExit("-1101000", "JSON namespace " + json_namespace + " is already in use")
 
-    # Delete existing $id AVU for this JSON namespace
-    callback.msi_rmw_avu(object_type, object_name, '$id', "%", json_namespace)
+    # Delete existing $schema AVU for this JSON namespace
+    callback.msi_rmw_avu(object_type, object_name, '$schema', "%", json_namespace)
 
-    # Set new $id AVU
-    callback.msi_add_avu(object_type, object_name, '$id', json_schema_url, json_namespace)
+    # Set new $schema AVU
+    callback.msi_add_avu(object_type, object_name, '$schema', json_schema_url, json_namespace)
 
 
 def getJsonSchemaFromObject(rule_args, callback, rei):
@@ -235,9 +235,9 @@ def getJsonSchemaFromObject(rule_args, callback, rei):
     object_type = rule_args[1]
     json_namespace = rule_args[2]
 
-    # Find AVU with a = '$id', and u = json_namespace. Their value is the JSON-schema URL
+    # Find AVU with a = '$schema', and u = json_namespace. Their value is the JSON-schema URL
     fields = getFieldsForType(callback, object_type, object_name)
-    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id' AND %s = '%s'" % (fields['a'], fields['u'], json_namespace)
+    fields['WHERE'] = fields['WHERE'] + " AND %s = '$schema' AND %s = '%s'" % (fields['a'], fields['u'], json_namespace)
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
     # We're only expecting one row to be returned if any
@@ -333,9 +333,9 @@ def allowAvuChange(object_name, object_type, unit, callback):
     if activelyUpdatingAVUs:
         return True
 
-    # Get all AVUs with attribute $id
+    # Get all AVUs with attribute $schema
     fields = getFieldsForType(callback, object_type, object_name)
-    fields['WHERE'] = fields['WHERE'] + " AND %s = '$id'" % (fields['a'])
+    fields['WHERE'] = fields['WHERE'] + " AND %s = '$schema'" % (fields['a'])
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields['WHERE'], genquery.AS_DICT, callback)
 
     # From these AVUs extract the unit (namespace)
@@ -362,9 +362,9 @@ def pep_database_set_avu_metadata_pre(rule_args, callback, rei):
 
     # This policy is not using the helper allowAvuChange function as the set operation can also modify units indirectly
 
-    # Get all AVUs with attribute $id
+    # Get all AVUs with attribute $schema
     fields = getFieldsForType(callback, object_type, object_name)
-    fields_id = fields['WHERE'] + " AND %s = '$id'" % (fields['a'])
+    fields_id = fields['WHERE'] + " AND %s = '$schema'" % (fields['a'])
     rows = genquery.row_iterator([fields['a'], fields['v'], fields['u']], fields_id, genquery.AS_DICT, callback)
 
     # From these AVUs extract the unit (namespace)
@@ -475,9 +475,9 @@ def pep_database_copy_avu_metadata_pre(rule_args, callback, rei):
     avus_from = genquery.row_iterator([fields_from['a'], fields_from['v'], fields_from['u']], fields_from['WHERE'],
                                       genquery.AS_DICT, callback)
 
-    # Get all AVUs with attribute $id from the to object
+    # Get all AVUs with attribute $schema from the to object
     fields_to = getFieldsForType(callback, object_type_to, object_name_to)
-    fields_id = fields_to['WHERE'] + " AND %s = '$id'" % (fields_to['a'])
+    fields_id = fields_to['WHERE'] + " AND %s = '$schema'" % (fields_to['a'])
     rows = genquery.row_iterator([fields_to['a'], fields_to['v'], fields_to['u']], fields_id, genquery.AS_DICT,
                                  callback)
 
