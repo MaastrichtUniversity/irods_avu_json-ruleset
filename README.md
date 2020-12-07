@@ -72,12 +72,12 @@ Finally, copy the rule file `rules/core.py` to `/etc/irods/core.py`.
 
 ### Policies
 
-Whenever an iRODS object (file, collection, resource, user) has an AVU called `$id` set, the value of the AVU determines
+Whenever an iRODS object (file, collection, resource, user) has an AVU called `$schema` set, the value of the AVU determines
 the JSON-schema controlling the object and the unit field determines the JSON-namespace used by the JSON-AVU conversion.  
 
 The policies then implements:
 
-* Direct modification of AVU under control of the JSON-schema set by `$id` AVU is not allowed. 
+* Direct modification of AVU under control of the JSON-schema set by `$schema` AVU is not allowed. 
 * Modification of those AVUs is only allowed using setJsonToObj()
 
 Modifications of other AVUs on an iRODS object are not affected by the policies.
